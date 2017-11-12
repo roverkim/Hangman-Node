@@ -33,7 +33,7 @@ const fs = require ('fs');
     this.printWord = () => {
       let displayedWord = ""; // Create a Empty Variable String
       this.guessedLetters.forEach((letterObject) => displayedWord += letterObject.displayLetter()); // Function that Loops Through Each Object in the guessedLetters Array and Executes a Function that Returns a Character Based on its Guessed Property and Concatinates it to the displayedWord String
-      console.log("\n" + displayedWord + "\n"); // Display the Results of the Word Guessed
+      console.log(displayedWord + "\n"); // Display the Results of the Word Guessed
     }; // End of printWord() Function
 
     // Function that Checks if All the Letters in currentWord has been Guessed

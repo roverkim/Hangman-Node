@@ -31,7 +31,7 @@ function GameConstructor(){
   this.getWordPromise = () => {
     return new Promise((resolve, reject) => { // Create a new Promise that gets Resolved after Word has been Selected
       fs.readFile("./assets/words.txt", "utf-8", (error, data) => { // FS Read the Contents of the Text File
-        if(error) console.log(`An error occured while reading the textfile ${error}`); // Throws an Error if Readfile Fails
+        if(error) console.log(` An error occured while reading the textfile ${error} \n`); // Throws an Error if Readfile Fails
         var wordsArray = data.split('\n').map((line) => line.replace("\r", ""));   // Stores the data returned into an Array
         var choosenWord = wordsArray[Math.floor(Math.random()*wordsArray.length)]; // Returns and Stores a Random Word From the Array Above
         resolve(choosenWord); // Pass the choosenWord when the Promise Gets Resolved
@@ -49,14 +49,14 @@ function GameConstructor(){
     }) // Promise Resolved
   }; // End of generateRandomWordObject
 
-  // Function that Asks for a Letter Input
+  // Function that Asks for a Letter Input. This is the Main Logic of the Game
   this.recursivePrompt = () => {
     inquirer.prompt(questions.guessLetter).then((letterAnswer) => { // Pass the Letter Response as an argument of the Callback Function
       let currentLetter = letterAnswer.guessLetter.toLowerCase(); // Transform to LowerCase and Store letter Guessed in a currentLetter Variable
       // Condition to Check if the letter has been Guessed Previously
       if (this.lettersGuessed.indexOf(currentLetter) > -1){ // If letter has been guessed, indecOf will be greater than -1
-        console.log(`\n Letters You Have Guessed: ${this.lettersGuessed.join(",")}`);
-        console.log("\n This Letter Has Been Guessed! \n");
+        console.log(`\n Letters You Have Guessed: ${this.lettersGuessed.join(",")} \n`);
+        console.log(" This Letter Has Been Guessed! \n");
         this.recursivePrompt(); // Prompt for Letter Input
       } else { // Letter has not been Guessed Previously
         this.lettersGuessed.push(currentLetter);  // Store the letter Guessed in the lettersGuessed Array for Future Reference
@@ -65,21 +65,24 @@ function GameConstructor(){
           // Condition that Checks if the Letter Guessed is Part of the Word Object
           if (this.currentWord.currentWordArray.indexOf(currentLetter) == -1){ // If not part, indexOf will be -1
               this.guessRemaining--; // Reduce guessRemaining by 1
-              console.log("\n Wrong Letter. Guess Again!!! \n")
-              console.log("\n" + this.guessRemaining + " Guesses Remaining \n");
+              this.currentWord.printWord(); // Print the all the Letters onto the Screen
+              console.log(" Wrong Letter. Guess Again!!! \n")
+              console.log(" "+ this.guessRemaining + " Guesses Remaining \n");
               console.log(hangmanFigure[this.guessRemaining]); // Displays a Hangman Figure
               // Condition to Check if guessRemaining is 0
               if (this.guessRemaining <= 0){
-                  console.log(`\n You No More Lives Remaining. You Lose. The Correct Answer is ${this.currentWord.word} \n`);
-                  console.log(`You Have Guessed ${this.wordsWon} Correctly, ${this.wordsLose} Incorrectly \n`);
+                  this.wordsLose++; // Increase Words lost
+                  console.log(` You No More Lives Remaining. You Lose. The Correct Answer is ${this.currentWord.word} \n`);
+                  console.log(` You Have Guessed ${this.wordsWon} Correctly, ${this.wordsLose} Incorrectly \n`);
+                  console.log(` Games Won: ${this.wordsWon} | Games Loss ${this.wordsLose} \n`);
                   inquirer.prompt(questions.playAgain).then((answer) => { // Ask if the User Wants to Play Again
                   // Condition to See if the User Wants to Play Again
                   if (answer.playAgain.toLowerCase().slice(0,1) == "y"){ // If User Wants to Play Again
-                      console.log("\n New Game Started \n");
+                      console.log(" New Game Started \n");
                       this.newGame(); // Create a New Game
                     // End the Game
                     } else {
-                      console.log("\n Game Over \n");
+                      console.log(" Game Over \n");
                       process.exit(); // Game Ends
                     } // End of Condition to See if User Wants to Play Again
                 }) // End of Prompt to See if User Wants to Play Again
@@ -91,20 +94,22 @@ function GameConstructor(){
           // If Letter is Part of the Word Object
           } else {
             this.currentWord.printWord(); // Print the all the Letters onto the Screen
-            console.log("Correct! \n")
+            console.log(" Correct! \n")
             this.currentWord.wordGuessCompleted()
             // Condition that Checks if All Letters have been Guessed.
             if (this.currentWord.wordFound === true){
-              console.log(`\n You Have Guessed the Word ${this.currentWord.word} correctly \n`);
+              this.wordsWon++; // Increase Words Won by 1
+              console.log(` You Have Guessed the Word ${this.currentWord.word} correctly \n`);
               console.log(` You Have Guessed ${this.wordsWon} Correctly, ${this.wordsLose} Incorrectly \n`);
+              console.log(` Games Won: ${this.wordsWon} | Games Loss ${this.wordsLose} \n`);
               inquirer.prompt(questions.playAgain).then((answer) => { // Ask if the User Wants to Play Again
               // Condition to See if the User Wants to Play Again
               if (answer.playAgain.toLowerCase().slice(0,1) == "y"){ // If User Wants to Play Again
-                  console.log("\n New Game Started \n");
+                  console.log(" New Game Started \n");
                   this.newGame(); // Create a New Game
                 // End the Game
                 } else {
-                  console.log("\n Game Over \n");
+                  console.log(" Game Over \n");
                   process.exit(); // Game Ends
                 } // End of Condition to See if User Wants to Play Again
               }) // End of Prompt Asking if User Wants to Play Again
